@@ -44,6 +44,40 @@ app.get('/api/v1/ventas/consolidado', async (req, res) => {
     }
 });
 
+
+
+
+
+
+// 3. Endpoint GET: Consultar venta segun el id 
+app.get('/api/v1/ventas/consolidado', async (req, res) => {
+    try {
+        const {idVenta} = req.query;
+        
+        //Validación de parámetros obligatorios
+        if (idVenta) {
+            return res.status(400).json({error: 'Bad Request', message: 'El parametro es obligatorio'});
+
+        //Se ejecuta el SP en BD
+        const {rows} = await pool.query('CALL sp_venta_id(?)', [idVenta]);
+
+        //Enviamos la respuesta al cliente
+        res.status(200).json({
+            status: 'success',
+            total_registros: rows[0] ? rows[0].length :0,
+            data: rows[0]
+        }) 
+}catch (error) {
+        console.error('Error en GET /ventas/consolidado', error);
+        res.status(500).json({ error: 'Internal Server Error', message: 'Error en MYSQL' });
+    }
+});
+
+
+
+
+
+
 // 4. Endpoint POST: Ingresar nueva venta
 app.post('/api/v1/ventas', async (req, res) => {
     try {
